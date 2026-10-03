@@ -1,0 +1,81 @@
+# =============================================================================
+#  Credit–Equity Dislocation — public-repo ignore rules
+#  Goal: publish code, methodology, presentation, and AGGREGATE outputs only.
+#  Never publish WRDS-licensed data, credentials, caches, or local session files.
+# =============================================================================
+
+# ---- Credentials / secrets (NEVER commit) ----
+.pgpass
+*.pgpass
+.env
+*.env
+.envrc
+wrds_credentials*
+.wrds
+*secret*
+*credentials*
+
+# ---- WRDS-licensed data: raw, interim, processed, and all manifests ----
+# Keep the folder placeholders so the structure is visible; ignore every dataset.
+/data/raw/*
+/data/interim/*
+/data/processed/*
+!/data/raw/.gitkeep
+!/data/interim/.gitkeep
+!/data/processed/.gitkeep
+# belt-and-suspenders: never commit these dataset types anywhere
+*.parquet
+*.feather
+*.h5
+*.dta
+*.sas7bdat
+
+# ---- Firm-level / security-level licensed OUTPUTS (row-level WRDS observations) ----
+# These CSVs/JSON contain per-firm-month returns + identifiers derived from WRDS.
+/output/tables/current_snapshot_scores.csv
+/output/tables/current_extremes_positive.csv
+/output/tables/current_extremes_negative.csv
+/output/tables/current_candidates.csv
+/output/diagnostics/phase4_current_snapshot.json
+# phase4_current_snapshot.md reproduces ~30 firm-month licensed returns inline (top/bottom
+# extremes + candidate tables). Excluded by default; opt back in if comfortable — it is
+# small/illustrative and the method is already in src/current_snapshot.py + the README.
+/output/diagnostics/phase4_current_snapshot.md
+
+# ---- Internal workflow / planning / session artifacts (not interviewer-facing) ----
+# Safe content, but documents the working process rather than the research itself.
+/CLAUDE.md
+/RESEARCH_LOG.md
+/output/diagnostics/phase5_storyboard.md
+/output/diagnostics/phase4_trade_design.md
+/output/diagnostics/phase4_event_check.md
+/output/diagnostics/phase3_liquidity_plan.md
+/output/diagnostics/phase3_rate_robustness_plan.md
+
+# ---- Claude Code / agent session & local settings ----
+.claude/
+*.claude
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+*.egg-info/
+
+# ---- Tooling / exports ----
+node_modules/
+*.pdf
+.vercel
+
+# ---- IDE / editor ----
+.vscode/
+.idea/
+*.swp
+*~
+
+# ---- OS ----
+.DS_Store
+Thumbs.db

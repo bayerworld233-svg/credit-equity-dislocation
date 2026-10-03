@@ -1,0 +1,5 @@
+universe,bond_months,linked_bond_months,firms_per_month_mean,firms_per_month_min,bonds_per_firm_mean,bonds_per_firm_median
+ALL (raw),3153572,2636729,878,717,22.9,4
+Current price only,1698635,1345324,861,710,11.9,4
+CDEB only,1117008,915902,867,706,8.1,4
+Current + CDEB,1057966,875584,849,702,7.9,4

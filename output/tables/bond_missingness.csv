@@ -1,0 +1,15 @@
+column,n_missing,pct_missing
+ret_eom,146911,4.659
+ret_ldm,2467462,78.243
+ret_l5m,2138623,67.816
+price_eom,0,0.0
+yield,24198,0.767
+t_spread,1700870,53.935
+coupon,2043,0.065
+duration,34148,1.083
+tmt,7409,0.235
+amount_outstanding,2197,0.07
+rating_num,1715222,54.39
+rating_class,0,0.0
+rating_cat,0,0.0
+maturity,0,0.0

@@ -1,0 +1,72 @@
+{
+  "generated_utc": "2026-10-02T23:28:57Z",
+  "bondret": {
+    "n_rows": 3153572,
+    "n_bonds": 160526,
+    "n_issuers": 2062,
+    "dup_cusip_date": 0,
+    "ret_eom_abs_gt_1": 412,
+    "bonds_per_issuer_month_median": 3.0,
+    "bonds_per_issuer_month_max": 4781,
+    "cryfwd_rate_pct": 46.14,
+    "zero_ret_pct": 42.92,
+    "yield_negative_pct": 22.72
+  },
+  "equity": {
+    "n_rows": 1109308,
+    "n_permno": 16912,
+    "dup_permno_date": 0
+  },
+  "link": {
+    "n_rows": 383120,
+    "n_bond_cusip": 376524,
+    "n_permno": 4147,
+    "bonds_multi_permno": 3719
+  },
+  "mapping": {
+    "bond_months": 3153572,
+    "linked": 2636729,
+    "link_rate_pct": 83.611,
+    "ambiguous_bond_months": 1591,
+    "firms_per_month_mean": 878.4503816793894,
+    "bonds_per_firm_month_median": 4.0
+  },
+  "candidate_universes": [
+    {
+      "universe": "ALL (raw)",
+      "bond_months": 3153572,
+      "linked_bond_months": 2636729,
+      "firms_per_month_mean": 878,
+      "firms_per_month_min": 717,
+      "bonds_per_firm_mean": 22.9,
+      "bonds_per_firm_median": 4
+    },
+    {
+      "universe": "Current price only",
+      "bond_months": 1698635,
+      "linked_bond_months": 1345324,
+      "firms_per_month_mean": 861,
+      "firms_per_month_min": 710,
+      "bonds_per_firm_mean": 11.9,
+      "bonds_per_firm_median": 4
+    },
+    {
+      "universe": "CDEB only",
+      "bond_months": 1117008,
+      "linked_bond_months": 915902,
+      "firms_per_month_mean": 867,
+      "firms_per_month_min": 706,
+      "bonds_per_firm_mean": 8.1,
+      "bonds_per_firm_median": 4
+    },
+    {
+      "universe": "Current + CDEB",
+      "bond_months": 1057966,
+      "linked_bond_months": 875584,
+      "firms_per_month_mean": 849,
+      "firms_per_month_min": 702,
+      "bonds_per_firm_mean": 7.9,
+      "bonds_per_firm_median": 4
+    }
+  ]
+}

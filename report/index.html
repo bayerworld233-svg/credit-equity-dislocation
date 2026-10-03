@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit–Equity Dislocation — Cross-Asset Research Pitch</title>
+<style>
+/* ============================================================= PALETTE / TYPE */
+:root{
+  --paper:#FBFAF7; --ink:#13202D; --slate:#5B6B7A; --line:#E2E7ED; --line2:#EDEFF2;
+  --blue:#1D4E89; --teal:#0E7C66; --orange:#C2410C; --amber:#9A6B12; --red:#A83A3A;
+  --band:#DCE4EE; --paperhi:#F2F0EA;
+  --sans:"Avenir Next","Avenir","Helvetica Neue",Helvetica,"Segoe UI",sans-serif;
+  --mono:"SF Mono","JetBrains Mono","Menlo","Roboto Mono",monospace;
+  --W:1280px; --H:720px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:#0C1218;font-family:var(--sans);color:var(--ink);overflow:hidden}
+
+/* ============================================================= STAGE (fixed 16:9, scaled) */
+#viewport{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+  background:radial-gradient(120% 120% at 50% 0%,#141d27 0%,#0a0f14 100%)}
+#stage{width:var(--W);height:var(--H);position:relative;transform-origin:center center;
+  background:var(--paper);box-shadow:0 30px 90px rgba(0,0,0,.55);overflow:hidden}
+
+/* ============================================================= SLIDE BASE */
+.slide{position:absolute;inset:0;padding:52px 64px 58px;opacity:0;visibility:hidden;
+  transition:opacity .34s ease;display:flex;flex-direction:column;
+  background:
+    linear-gradient(90deg,transparent 0 63px, var(--line2) 63px 64px, transparent 64px) no-repeat left/0 0,
+    var(--paper)}
+.slide.active{opacity:1;visibility:visible}
+@media (prefers-reduced-motion:reduce){.slide{transition:none}}
+
+/* thin left spine accent per slide */
+.slide::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--blue)}
+.slide[data-acc="orange"]::before{background:var(--orange)}
+.slide[data-acc="teal"]::before{background:var(--teal)}
+.slide[data-acc="ink"]::before{background:var(--ink)}
+
+/* ============================================================= HEADER BITS */
+.kicker{font-family:var(--mono);font-size:14px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--slate);display:flex;gap:14px;align-items:center}
+.kicker .dot{width:6px;height:6px;border-radius:50%;background:var(--orange);display:inline-block}
+.h-title{font-size:37px;font-weight:600;line-height:1.1;letter-spacing:-.01em;margin-top:12px;max-width:1040px}
+.h-sub{font-size:19px;color:var(--slate);margin-top:10px;max-width:980px;line-height:1.4}
+
+/* ============================================================= TAG CHIPS */
+.tag{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 8px;border-radius:3px;border:1px solid;font-weight:600;white-space:nowrap}
+.t-fact{color:var(--blue);border-color:#BcCdE1;background:#EEF3F9}
+.t-interp{color:var(--amber);border-color:#E6D6AE;background:#FBF5E6}
+.t-impl{color:var(--teal);border-color:#BBD9D0;background:#E9F4F1}
+.taglegend{position:absolute;right:64px;top:54px;display:flex;gap:8px}
+
+/* ============================================================= FOOTER */
+.foot{position:absolute;left:64px;right:64px;bottom:20px;display:flex;align-items:center;
+  justify-content:space-between;font-family:var(--mono);font-size:12.5px;color:var(--slate)}
+.take{color:var(--ink);font-family:var(--sans);font-size:15px;font-weight:600;
+  border-left:3px solid var(--orange);padding-left:12px;max-width:860px}
+.pager{letter-spacing:.12em;white-space:nowrap;padding-left:18px}
+#bar{position:absolute;left:0;bottom:0;height:4px;background:var(--orange);width:0;transition:width .3s ease}
+
+/* ============================================================= GENERIC LAYOUT */
+.row{display:flex;gap:40px;flex:1;min-height:0;margin-top:22px}
+.col{display:flex;flex-direction:column;min-width:0}
+.grow{flex:1}
+.center{align-items:center;justify-content:center}
+.imgwrap{display:flex;align-items:center;justify-content:center;min-height:0}
+.imgwrap img{max-width:100%;max-height:100%;object-fit:contain}
+.note{font-size:14.5px;color:var(--slate);line-height:1.45}
+.lead{font-size:20px;line-height:1.5}
+.big{font-family:var(--mono);font-weight:600;letter-spacing:-.01em}
+
+/* stat tiles */
+.tile{border:1px solid var(--line);border-radius:8px;padding:16px 18px;background:#fff}
+.tile .lab{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--slate)}
+.tile .num{font-family:var(--mono);font-size:40px;font-weight:600;line-height:1;margin-top:8px;color:var(--ink)}
+.tile .sub{font-size:13.5px;color:var(--slate);margin-top:8px}
+.tile.hy .num{color:var(--orange)} .tile.hy{border-color:#E7C7B2}
+.tile.all .num{color:var(--blue)} .tile.ig .num{color:var(--slate)}
+
+/* ============================================================= S1 DIAGRAM */
+.firmdiag{display:flex;align-items:center;gap:30px;justify-content:center;margin-top:8px}
+.node{border:2px solid var(--ink);border-radius:12px;padding:20px 26px;text-align:center;background:#fff;min-width:210px}
+.node .nm{font-size:22px;font-weight:600}
+.node .nd{font-family:var(--mono);font-size:12.5px;color:var(--slate);margin-top:6px;letter-spacing:.04em}
+.node.eq{border-color:var(--blue)} .node.bd{border-color:var(--orange)}
+.link{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:220px}
+.link .arr{font-size:30px;color:var(--ink);line-height:1}
+.link .lk{font-family:var(--mono);font-size:12.5px;color:var(--slate);text-align:center;letter-spacing:.03em}
+.hypo{color:var(--orange);font-weight:600}
+
+/* ============================================================= S3 ARROWS */
+.dirbox{border:1px solid var(--line);border-radius:10px;padding:22px 26px;display:flex;
+  align-items:center;gap:26px;background:#fff}
+.dirbox.dead{background:var(--paperhi);border-style:dashed;color:var(--slate)}
+.dirbox.live{border-color:#BcCdE1;box-shadow:0 2px 0 #EEF3F9}
+.dirlbl{font-family:var(--mono);font-size:22px;font-weight:600;letter-spacing:.01em;white-space:nowrap}
+.dirbox.dead .dirlbl{text-decoration:line-through;text-decoration-thickness:2px;color:var(--slate)}
+.dirbox.live .dirlbl{color:var(--ink)}
+.dirstat{margin-left:auto;text-align:right;font-family:var(--mono)}
+.dirstat .c{font-size:30px;font-weight:600}
+.dirbox.live .dirstat .c{color:var(--blue)} .dirbox.dead .dirstat .c{color:var(--slate)}
+.dirstat .tt{font-size:14px;color:var(--slate);margin-top:3px}
+.spec{font-family:var(--mono);font-size:15px;color:var(--ink);background:var(--paperhi);
+  border:1px solid var(--line);border-radius:6px;padding:10px 14px;display:inline-block}
+
+/* ============================================================= S4 CARDS */
+.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;flex:1;min-height:0}
+.card{border:1px solid var(--line);border-radius:9px;padding:22px 20px;background:#fff;display:flex;flex-direction:column;justify-content:flex-start;gap:11px}
+.card .cn{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--slate)}
+.card .ch{font-size:19px;font-weight:600;line-height:1.2}
+.card .cb{font-size:14.5px;color:var(--ink);line-height:1.45}
+.card .cs{font-family:var(--mono);font-size:15px;color:var(--blue);font-weight:600;margin-top:2px}
+.card.hl{border-color:#E7C7B2;background:#fffaf6}
+.card.hl .cs{color:var(--orange)}
+.hybar{display:flex;align-items:flex-end;justify-content:center;gap:28px;height:128px;margin:4px 0}
+.hcol{display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.hcol .v{font-family:var(--mono);font-size:13px;color:var(--ink);font-weight:600;margin-bottom:6px}
+.hcol .bar{width:48px;border-radius:4px 4px 0 0;background:var(--slate)}
+.hcol .bar.hy{background:var(--orange)}
+.hcol .lab{font-family:var(--mono);font-size:12px;color:var(--slate);margin-top:7px}
+
+/* ============================================================= S5 FLOW */
+.flow{display:flex;align-items:stretch;gap:0;flex:1;min-height:0}
+.flowmain{display:flex;flex-direction:column;gap:10px;flex:1;justify-content:center}
+.step{display:flex;align-items:center;gap:16px}
+.step .bx{border:1px solid var(--line);border-radius:8px;padding:12px 18px;background:#fff;
+  font-size:17px;flex:1;display:flex;align-items:center;gap:12px}
+.step .ix{font-family:var(--mono);font-size:13px;color:var(--orange);font-weight:600;width:20px}
+.step.split .bx{border-color:#BcCdE1}
+.legs{display:flex;gap:14px;flex:1}
+.leg{flex:1;border-radius:8px;padding:12px 16px;font-size:16px;color:#fff;font-weight:500}
+.leg.long{background:var(--teal)} .leg.short{background:var(--red)}
+.leg .lt{font-family:var(--mono);font-size:12px;opacity:.9;letter-spacing:.06em}
+.down{color:var(--slate);font-size:18px;text-align:center;margin:-2px 0}
+.sidebox{width:300px;border-left:1px solid var(--line);padding-left:26px;margin-left:26px;
+  display:flex;flex-direction:column;gap:16px;justify-content:center}
+.sidebox h4{font-size:15px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--slate)}
+.sidebox p{font-size:15px;line-height:1.5;margin-top:4px}
+
+/* ============================================================= S7 */
+.vfc{border:1px solid #E7C7B2;background:#fffaf6;border-radius:10px;padding:22px 24px;flex:1;display:flex;flex-direction:column}
+.vfc .vh{display:flex;align-items:baseline;gap:14px}
+.vfc .vt{font-size:26px;font-weight:600}
+.vfc .vz{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--orange);margin-left:auto}
+.facts{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+.facts li{list-style:none;font-size:15px;line-height:1.35;padding-left:18px;position:relative}
+.facts li::before{content:"–";position:absolute;left:0;color:var(--orange)}
+.nottrade{border:1px solid var(--line);border-radius:9px;padding:16px 18px;background:#fff}
+.nottrade h4{font-size:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--red)}
+.nottrade ul{margin-top:8px;display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}
+.nottrade li{list-style:none;font-size:13px;color:var(--ink);line-height:1.3;padding-left:12px;position:relative}
+.nottrade li::before{content:"×";position:absolute;left:0;color:var(--red);font-size:11px;top:1px}
+.ctx{border:1px solid var(--line);border-radius:9px;padding:14px 16px;background:var(--paperhi)}
+.ctx .cn{font-family:var(--mono);font-size:30px;font-weight:600;color:var(--ink)}
+.ctx .cl{font-size:13.5px;color:var(--slate);line-height:1.4;margin-top:4px}
+
+/* ============================================================= APPENDIX */
+.apx .h-title{font-size:30px}
+table.tb{border-collapse:collapse;width:100%;font-size:13.5px;margin-top:6px}
+table.tb th,table.tb td{text-align:left;padding:6px 10px;border-bottom:1px solid var(--line)}
+table.tb th{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--slate);font-weight:600}
+table.tb td.n,table.tb th.n{text-align:right;font-family:var(--mono)}
+table.tb tr.hy td{color:var(--orange)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:28px;flex:1;min-height:0}
+.panel h4{font-size:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--slate);margin-bottom:6px;margin-top:4px}
+.panel p{font-size:14px;line-height:1.5;color:var(--ink)}
+.divider{align-items:center;justify-content:center;text-align:center}
+.divider .big-k{font-family:var(--mono);font-size:16px;letter-spacing:.3em;color:var(--orange);text-transform:uppercase}
+.divider h2{font-size:54px;font-weight:600;margin-top:12px}
+
+/* math */
+.math{font-family:var(--mono);font-size:17px;color:var(--ink);line-height:1.6}
+.math .v{font-style:italic;font-family:Georgia,"Times New Roman",serif}
+.math sub{font-size:.72em}
+
+/* nav zones */
+.navz{position:fixed;top:0;bottom:0;width:14%;z-index:20;cursor:pointer}
+#navprev{left:0} #navnext{right:0}
+#hint{position:fixed;right:14px;bottom:10px;z-index:30;font-family:var(--mono);font-size:11px;
+  color:#5a6a78;letter-spacing:.08em}
+</style>
+</head>
+<body>
+<div id="viewport">
+  <div id="stage">
+
+  <!-- ===================================================== SLIDE 1 — QUESTION -->
+  <section class="slide" data-sec="1" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Cross-Asset Quant Research · Same-firm credit vs equity</div>
+    <div class="col center grow" style="gap:20px;text-align:center">
+      <h1 style="font-size:58px;font-weight:600;line-height:1.05;letter-spacing:-.02em;max-width:1040px">
+        When Stocks and Bonds Disagree,<br>Which Market Is Right?</h1>
+      <div class="firmdiag">
+        <div class="node bd"><div class="nm">Corporate Bonds</div><div class="nd">OTC · slower · segmented</div></div>
+        <div class="link">
+          <div class="arr">– – – – ▶</div>
+          <div class="lk"><span class="hypo">my original hypothesis:</span><br>bonds lead equities</div>
+        </div>
+        <div class="node eq"><div class="nm">Equity</div><div class="nd">exchange · faster · more covered</div></div>
+      </div>
+      <div class="h-sub" style="margin-top:14px;text-align:center">
+        Same firm, two segmented markets, one enterprise value. When a firm's stock and bonds
+        diverge from their historical relationship, <b>which market — if either — predicts the other's convergence?</b>
+      </div>
+    </div>
+    <div class="foot"><div class="take">I set out to test whether the slower bond market leads stocks.</div>
+      <div class="pager"></div></div>
+    <div id="bar0"></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 2 — NORMAL RELATIONSHIP -->
+  <section class="slide" data-sec="2" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Step 1 · The normal relationship</div>
+    <div class="taglegend"><span class="tag t-fact">Fact</span></div>
+    <h2 class="h-title">Stocks and bonds normally move together — so deviations are measurable</h2>
+    <div class="row">
+      <div class="col" style="flex:1.35"><div class="imgwrap grow"><img src="assets/fig_expanding_beta.png" alt="Expanding-window beta, stable and always positive"></div></div>
+      <div class="col" style="flex:1;gap:16px;justify-content:center">
+        <div style="display:flex;gap:14px">
+          <div class="tile" style="flex:1"><div class="lab">Contemp. corr</div><div class="num">0.42</div><div class="sub">pooled, same-firm month</div></div>
+          <div class="tile" style="flex:1"><div class="lab">Pooled β</div><div class="num">1.26</div><div class="sub">equity on bond return</div></div>
+        </div>
+        <div class="tile"><div class="lab">Expanding β&#8348; (no look-ahead)</div><div class="num" style="font-size:30px">1.10 – 1.33, always &gt; 0</div><div class="sub">re-estimated each month on data ≤ t−1</div></div>
+        <div class="math" style="background:var(--paperhi);border:1px solid var(--line);border-radius:7px;padding:12px 14px">
+          <b>Dislocation</b><sub></sub> = <span class="v">eq</span><sub>i,t</sub> − [ α̂<sub>t</sub> + β̂<sub>t</sub> · <span class="v">bd</span><sub>i,t</sub> ]
+        </div>
+        <div class="note">+ : equity has <b>outrun</b> credit vs the norm &nbsp;·&nbsp; − : equity has <b>lagged</b> credit.
+          <span style="color:var(--amber)"><b>A dislocation is a statistical deviation, not automatically a mispricing.</b></span></div>
+      </div>
+    </div>
+    <div class="foot"><div class="take">A stable, positive, look-ahead-free benchmark defines what "dislocation" means.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 3 — DISCOVERY -->
+  <section class="slide" data-sec="3" data-acc="orange">
+    <div class="kicker"><span class="dot"></span> Step 2 · The discovery</div>
+    <div class="taglegend"><span class="tag t-fact">Fact</span><span class="tag t-interp">Interpretation</span></div>
+    <h2 class="h-title">The data rejected my original hypothesis</h2>
+    <div class="col grow" style="gap:16px;justify-content:center;margin-top:14px">
+      <div class="dirbox dead">
+        <div class="dirlbl">Bond<sub>t</sub> &nbsp;→&nbsp; Equity<sub>t+1</sub></div>
+        <div class="note" style="max-width:420px">Original hypothesis — bonds lead equities</div>
+        <div class="dirstat"><div class="c">−0.019</div><div class="tt">t = −0.12 · <b>not significant</b></div></div>
+      </div>
+      <div class="dirbox live">
+        <div class="dirlbl">Equity<sub>t</sub> &nbsp;→&nbsp; Bond<sub>t+1</sub></div>
+        <div class="note" style="max-width:420px">Equity carries incremental predictive information for next-month credit,
+          conditional on the bond's own current return</div>
+        <div class="dirstat"><div class="c">+0.030</div><div class="tt">t = +2.87 · <b>significant</b></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:20px;margin-top:4px">
+        <span class="spec">both read off one regression:&nbsp; R<sub>t+1</sub> = monthFE + c·bd<sub>t</sub> + d·eq<sub>t</sub></span>
+        <span class="note" style="flex:1"><span style="color:var(--amber)"><b>Interpretation:</b></span>
+          consistent with equity incorporating firm information faster at the monthly horizon
+          (slow diffusion / segmentation) — <b>a hypothesis, not causal proof.</b></span>
+      </div>
+    </div>
+    <div class="foot"><div class="take">At the monthly horizon, equity predicts next-month bond returns; the reverse direction does not.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 4 — ROBUSTNESS -->
+  <section class="slide" data-sec="4" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Step 3 · Falsification</div>
+    <div class="taglegend"><span class="tag t-fact">Fact</span><span class="tag t-interp">Interpretation</span></div>
+    <h2 class="h-title">Does the equity→credit lead survive alternative explanations?</h2>
+    <div class="cards">
+      <div class="card"><div class="cn">01 · Own return</div><div class="ch">Not bond mean-reversion</div>
+        <div class="cb">Controlling for the bond's own return, the bond→equity effect vanishes; equity→bond holds.</div>
+        <div class="cs">d = +0.030 · t 2.9</div></div>
+      <div class="card"><div class="cn">02 · Rates / duration</div><div class="ch">Survives Treasury-rate adjustment</div>
+        <div class="cb">Add duration×Δy10 and use duration-matched Treasury-adjusted returns.</div>
+        <div class="cs">d ≈ 0.030–0.031 · unchanged</div></div>
+      <div class="card"><div class="cn">03 · Price freshness</div><div class="ch">Survives stricter price-freshness screens</div>
+        <div class="cb">Current TRACE trades only; re-test on ≤5-day month-end fresh prints.</div>
+        <div class="cs">d ≈ 0.029 · survives</div></div>
+      <div class="card hl"><div class="cn">04 · Credit quality</div><div class="ch">Strongest in high yield</div>
+        <div class="cb">Significant in both IG and HY — far larger where credit risk dominates.</div>
+        <div class="hybar">
+          <div class="hcol"><div class="v">~10 bp</div><div class="bar" style="height:16px"></div><div class="lab">IG</div></div>
+          <div class="hcol"><div class="v">~62 bp</div><div class="bar hy" style="height:94px"></div><div class="lab">HY</div></div>
+        </div>
+        <div class="cs">~6× larger per +1 SD</div></div>
+    </div>
+    <div class="foot"><div class="take">It survives the mechanical explanations I could test — and is largest where credit risk matters.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 5 — STRATEGY -->
+  <section class="slide" data-sec="5" data-acc="teal">
+    <div class="kicker"><span class="dot"></span> Step 4 · From signal to trade</div>
+    <div class="taglegend"><span class="tag t-impl">Implementation</span></div>
+    <h2 class="h-title">A monthly cross-sectional credit-convergence trade</h2>
+    <div class="flow">
+      <div class="flowmain">
+        <div class="step"><span class="ix">1</span><div class="bx">Frozen historical β  →  compute each firm's <b>monthly dislocation</b></div></div>
+        <div class="down">▼</div>
+        <div class="step"><span class="ix">2</span><div class="bx">Rank the cross-section into <b>quintiles</b> each month</div></div>
+        <div class="down">▼</div>
+        <div class="step split"><span class="ix">3</span>
+          <div class="legs">
+            <div class="leg long"><div class="lt">Q5 · high + dislocation</div>LONG corporate credit</div>
+            <div class="leg short"><div class="lt">Q1 · large − dislocation</div>SHORT corporate credit</div>
+          </div></div>
+        <div class="down">▼</div>
+        <div class="step"><span class="ix">4</span><div class="bx">Hold <b>1 month</b> · rebalance monthly · dollar-neutral</div></div>
+      </div>
+      <div class="sidebox">
+        <div><h4>Two weighting layers</h4>
+          <p><b>Within firm:</b> multiple bonds → amount-outstanding-weighted firm credit return.</p>
+          <p><b>Across firms:</b> <b>equal-weight issuers</b> in each leg — so large debt issuers don't dominate.</p></div>
+        <div><h4>Return</h4>
+          <p>Duration-matched <b>Treasury-adjusted</b> (credit-excess) return — to <i>approximate</i> a credit-convergence
+          trade, not a rates bet. Approximately, not perfectly, rate-neutral.</p></div>
+      </div>
+    </div>
+    <div class="foot"><div class="take">Equity already moved; if equity leads credit, trade the bond's expected catch-up.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 6 — BACKTEST -->
+  <section class="slide" data-sec="6" data-acc="orange">
+    <div class="kicker"><span class="dot"></span> Step 5 · Economic significance</div>
+    <div class="taglegend"><span class="tag t-fact">Fact</span><span class="tag t-impl">Implementation</span></div>
+    <h2 class="h-title">The signal translates into positive <span style="color:var(--orange)">gross</span> portfolio returns</h2>
+    <div class="row">
+      <div class="col" style="flex:1.5"><div class="imgwrap grow"><img src="assets/fig_backtest_cumret.png" alt="Cumulative long/short credit-excess return, gross"></div></div>
+      <div class="col" style="flex:1;gap:12px;justify-content:center">
+        <div class="tile all"><div class="lab">ALL</div><div class="num">5.1%<span style="font-size:17px;color:var(--slate)"> / yr</span></div><div class="sub">Sharpe 1.24 · NW&nbsp;t 2.80 · hit 72%</div></div>
+        <div class="tile hy"><div class="lab">High yield</div><div class="num">10.1%<span style="font-size:17px;color:var(--slate)"> / yr</span></div><div class="sub">Sharpe 1.10 · NW&nbsp;t 2.79 — the strongest segment</div></div>
+        <div class="nottrade" style="background:var(--paperhi)"><h4 style="color:var(--amber)">Gross, not executable net</h4>
+          <ul style="grid-template-columns:1fr">
+            <li style="padding-left:14px">Turnover ≈ 160% / rebalance</li>
+            <li style="padding-left:14px">Single-name cash-bond shorting is hard &amp; costly</li>
+            <li style="padding-left:14px">Cost sensitivity uses <b>illustrative</b> bp, not measured costs</li>
+            <li style="padding-left:14px">Full-sample ≠ regime-invariant (2020 contributes a step)</li>
+          </ul></div>
+      </div>
+    </div>
+    <div class="foot"><div class="take">Economically meaningful gross, strongest in HY — net tradability is the open question.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== SLIDE 7 — CURRENT + FAILURE -->
+  <section class="slide" data-sec="7" data-acc="orange">
+    <div class="kicker"><span class="dot"></span> Step 6 · Current example &amp; when not to trade</div>
+    <div class="taglegend"><span class="tag t-fact">Fact</span><span class="tag t-interp">Interpretation</span></div>
+    <h2 class="h-title">Current example: VF Corp — a candidate long-credit dislocation</h2>
+    <div class="row" style="margin-top:16px">
+      <div class="col" style="flex:1.15">
+        <div class="vfc">
+          <div class="vh"><div class="vt">VF Corp</div><div class="note">HY · Q5 long-credit candidate</div><div class="vz">+2.6σ</div></div>
+          <ul class="facts">
+            <li>Nov 2025: equity materially <b>outran</b> the same-firm bonds</li>
+            <li>Dickies sale <b>closed Nov 12 2025</b>, ≈ <b>$600.5M net</b> → leverage reduction</li>
+            <li>Net debt down ≈ <b>$1.5B YoY (≈ −27% ex-leases)</b></li>
+            <li>Revenue returned to growth / beat guidance; adj. EPS beat but <b>down YoY</b></li>
+          </ul>
+          <div class="note" style="margin-top:12px"><span style="color:var(--amber)"><b>Interpretation:</b></span>
+            catalyst is directionally positive for <b>both</b> equity and credit → divergence is more compatible with
+            <b>delayed credit repricing</b> than a shareholder-vs-creditor event. A <b>candidate</b>, not a guaranteed catch-up.</div>
+        </div>
+      </div>
+      <div class="col" style="flex:1;gap:12px">
+        <div class="ctx"><div class="cn">24th pct</div><div class="cl">Market-wide dislocation dispersion today is <b>below</b> its history (IQR ≈ 11th pct) —
+          this is a <b>name-specific</b> opportunity, not a market-wide mispricing.</div></div>
+        <div class="nottrade"><h4>When would I NOT trade the signal?</h4>
+          <ul>
+            <li>M&amp;A / cap-structure change</li><li>Equity dilution (creditor-positive)</li>
+            <li>Debt-funded buyback / M&amp;A</li><li>Rating / distress / default</li>
+            <li>Transaction costs &amp; turnover</li><li>Cash-bond shorting / HY liquidity</li>
+          </ul>
+          <div class="note" style="margin-top:10px;font-size:12.5px"><b>Counter-example — HPP:</b> a large dilutive equity raise makes
+            equity↓ while bonds≈flat <i>economically correct</i>, not delayed adjustment.</div></div>
+      </div>
+    </div>
+    <div class="foot"><div class="take">A systematic screen for convergence candidates, then an event check — not a mechanical trade on every divergence.</div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== APPENDIX DIVIDER -->
+  <section class="slide apx divider" data-sec="A" data-acc="ink">
+    <div class="big-k">Appendix</div>
+    <h2>Methods, full results &amp; Q&amp;A backup</h2>
+    <div class="note" style="margin-top:16px;max-width:760px;text-align:center">
+      Data &amp; sample · signal construction · predictive &amp; decomposition tables · robustness ·
+      backtest detail · current-dislocation &amp; event verification</div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A1 DATA -->
+  <section class="slide apx" data-sec="A1" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A1 — Data &amp; sample</div>
+    <h2 class="h-title">Data sources &amp; sample construction</h2>
+    <div class="two">
+      <div class="panel col" style="gap:10px">
+        <div><h4>WRDS sources (verified, point-in-time)</h4>
+          <p>Bonds: <b>wrdsapps_bondret</b> (monthly, TRACE-based, ret_eom).<br>
+             Equity: <b>CRSP msf_v2</b> (delisting-adjusted total return).<br>
+             Link: <b>official bondcrsp_link</b> (PIT, 9-char cusip) — no ticker matching.<br>
+             Factors: <b>Fama–French</b> monthly.</p></div>
+        <div><h4>Eligibility</h4>
+          <p>Current-priced, non-convertible debentures &amp; MTNs; valid return &amp; amount outstanding.
+          Firm key = permco; multi-class equity combined by prior-month cap (no look-ahead).</p></div>
+      </div>
+      <div class="panel col" style="justify-content:center">
+        <table class="tb">
+          <tr><th>Item</th><th class="n">Value</th></tr>
+          <tr><td>Panel firm-months</td><td class="n">98,373</td></tr>
+          <tr><td>Unique firms</td><td class="n">1,244</td></tr>
+          <tr><td>Panel window</td><td class="n">2015-01 → 2025-11</td></tr>
+          <tr><td>Signal / backtest window</td><td class="n">2017-01 → 2025-11</td></tr>
+          <tr><td>Signal months</td><td class="n">107</td></tr>
+          <tr><td>Bond→equity link rate</td><td class="n">~84%</td></tr>
+        </table>
+        <div class="note" style="margin-top:12px">Winsorization is a modeling-time choice; primary predictive tests use raw returns.
+          WRDS is ~10 months stale vs today, so the "current" snapshot is as-of 2025-11 — never presented as real-time.</div>
+      </div>
+    </div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A2 SIGNAL METHOD -->
+  <section class="slide apx" data-sec="A2" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A2 — Signal &amp; no-look-ahead method</div>
+    <h2 class="h-title">Contemporaneous relationship &amp; the frozen dislocation signal</h2>
+    <div class="row">
+      <div class="col" style="flex:1.2"><div class="imgwrap grow"><img src="assets/fig_scatter.png" alt="Contemporaneous bond vs equity hexbin with OLS beta 1.26"></div></div>
+      <div class="col" style="flex:1;gap:14px;justify-content:center">
+        <div class="panel"><h4>Expanding estimation (look-ahead-free)</h4>
+          <p class="math" style="font-size:15px">eq<sub>i,s</sub> = α<sub>t</sub> + β<sub>t</sub>·bd<sub>i,s</sub> + ε,&nbsp; over all s ≤ t−1</p>
+          <p style="margin-top:8px">Pooled OLS, ≥24-month minimum history, single common β, no firm/month FE.
+          α̂<sub>t</sub>, β̂<sub>t</sub> then score month t out-of-sample.</p></div>
+        <div class="panel"><h4>Stability checks</h4>
+          <p>Monthly cross-sectional corr: mean 0.29, <b>96.9% of months positive</b>.
+          Pooled β = 1.26 (t ≈ 147). Expanding β&#8348; ∈ [1.10, 1.33], all positive.</p></div>
+      </div>
+    </div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A3 PREDICTIVE TABLES -->
+  <section class="slide apx" data-sec="A3" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A3 — Predictive &amp; decomposition results</div>
+    <h2 class="h-title">Full predictive specifications (month FE, two-way clustered SE)</h2>
+    <div class="two">
+      <div class="panel"><h4>Dislocation predictive regressions</h4>
+        <table class="tb">
+          <tr><th>Spec</th><th class="n">coef</th><th class="n">t</th><th class="n">+1SD</th></tr>
+          <tr><td>eq<sub>t+1</sub> ~ disloc (primary)</td><td class="n">−0.027</td><td class="n">−1.44</td><td class="n">−30 bp</td></tr>
+          <tr><td>bond<sub>t+1</sub> ~ disloc (reverse)</td><td class="n">+0.030</td><td class="n">+2.84</td><td class="n">+33 bp</td></tr>
+        </table>
+        <p class="note" style="margin-top:8px">The original equity-convergence test (γ) is insignificant;
+          the reverse diagnostic is significant. Dislocation pins the bond loading at −β̂ — related to, but
+          not identical with, the unrestricted decomposition.</p></div>
+      <div class="panel"><h4>Unrestricted own-return decomposition</h4>
+        <table class="tb">
+          <tr><th>Regression</th><th>term</th><th class="n">coef</th><th class="n">t</th></tr>
+          <tr><td>eq<sub>t+1</sub> ~ eq<sub>t</sub>+bd<sub>t</sub></td><td>bd<sub>t</sub></td><td class="n">−0.019</td><td class="n">−0.12</td></tr>
+          <tr><td>eq<sub>t+1</sub> ~ eq<sub>t</sub>+bd<sub>t</sub></td><td>eq<sub>t</sub></td><td class="n">−0.028</td><td class="n">−1.41</td></tr>
+          <tr class="hy"><td>bd<sub>t+1</sub> ~ bd<sub>t</sub>+eq<sub>t</sub></td><td>eq<sub>t</sub></td><td class="n">+0.030</td><td class="n">+2.87</td></tr>
+          <tr><td>bd<sub>t+1</sub> ~ bd<sub>t</sub>+eq<sub>t</sub></td><td>bd<sub>t</sub></td><td class="n">−0.048</td><td class="n">−0.99</td></tr>
+        </table>
+        <p class="note" style="margin-top:8px">Own-return autocorrelations are weak/insignificant — the equity→bond
+          result is not a bond mean-reversion artifact.</p></div>
+    </div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A4 ROBUSTNESS -->
+  <section class="slide apx" data-sec="A4" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A4 — Robustness detail</div>
+    <h2 class="h-title">Rates / duration, price-freshness, IG vs HY (coef on eq&#8348;)</h2>
+    <table class="tb">
+      <tr><th>Test</th><th class="n">ALL</th><th class="n">IG</th><th class="n">HY</th><th>Note</th></tr>
+      <tr><td>Baseline bd<sub>t+1</sub> ~ bd<sub>t</sub>+eq<sub>t</sub></td><td class="n">0.030 (2.87)</td><td class="n">0.011 (3.0)</td><td class="n">0.036 (2.8)</td><td>+1SD ≈ 10 bp IG / 62 bp HY</td></tr>
+      <tr><td>+ duration × Δy10<sub>t+1</sub></td><td class="n">0.031 (2.97)</td><td class="n">—</td><td class="n">—</td><td>ex-post rate control</td></tr>
+      <tr><td>Credit-excess (duration-matched Tsy)</td><td class="n">0.030 (2.96)</td><td class="n">—</td><td class="n">—</td><td>not a Treasury artifact</td></tr>
+      <tr><td>Fresh month-end trade ≤ 5 days</td><td class="n">0.029 (2.70)</td><td class="n">0.011 (2.7)</td><td class="n">0.035 (2.7)</td><td>keeps ~97–98% of sample</td></tr>
+      <tr><td>Fresh month-end trade ≤ 1 day</td><td class="n">0.031 (2.40)</td><td class="n">0.010 (2.2)</td><td class="n">0.039 (2.5)</td><td>strict; ≤1d drops weekend-EOM months</td></tr>
+    </table>
+    <div class="note" style="margin-top:14px">Duration-matched Treasury return interpolated across the 1/2/5/7/10/20/30y CMT grid by bond duration;
+      credit-excess = corporate − matched Treasury. Δy10 is an ex-post control, not a tradable predictor. These
+      <b>support, do not prove,</b> a credit channel — the adjusted return still carries credit-spread, liquidity, and convexity.</div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A5 BACKTEST DETAIL -->
+  <section class="slide apx" data-sec="A5" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A5 — Backtest detail</div>
+    <h2 class="h-title">Full metrics, alternative weighting &amp; illustrative cost sensitivity</h2>
+    <div class="two">
+      <div class="panel">
+        <h4>Primary: quintile L/S, EW firms, credit-excess (gross)</h4>
+        <table class="tb">
+          <tr><th>Sleeve</th><th class="n">Ann</th><th class="n">Vol</th><th class="n">Sharpe</th><th class="n">NW t</th><th class="n">maxDD</th></tr>
+          <tr><td>ALL</td><td class="n">5.1%</td><td class="n">4.1%</td><td class="n">1.24</td><td class="n">2.80</td><td class="n">−2.5%</td></tr>
+          <tr class="hy"><td>HY</td><td class="n">10.1%</td><td class="n">9.1%</td><td class="n">1.10</td><td class="n">2.79</td><td class="n">−8.9%</td></tr>
+          <tr><td>IG</td><td class="n">2.2%</td><td class="n">1.9%</td><td class="n">1.12</td><td class="n">2.47</td><td class="n">−1.1%</td></tr>
+        </table>
+        <p class="note" style="margin-top:8px">Deciles (EW, credit-excess): ALL 7.2% / Sharpe 1.09; HY 11.9% / Sharpe 0.96.
+          AO-across-firms weighting damps ALL to ~3.2% (large issuers dilute) → EW is primary. Turnover ≈ 157–175% / rebalance.
+          Duration gap Q5−Q1 ≈ 0.05–0.09 yr.</p>
+      </div>
+      <div class="panel">
+        <h4>Illustrative round-trip cost sensitivity</h4>
+        <table class="tb">
+          <tr><th>Cost (bp)</th><th class="n">ALL net ann</th><th class="n">HY net ann</th></tr>
+          <tr><td>0 (gross)</td><td class="n">5.1%</td><td class="n">10.1%</td></tr>
+          <tr><td>10</td><td class="n">1.3%</td><td class="n">6.3%</td></tr>
+          <tr><td>25</td><td class="n">−4.3%</td><td class="n">0.6%</td></tr>
+          <tr><td>50</td><td class="n">−13.8%</td><td class="n">−8.9%</td></tr>
+        </table>
+        <p class="note" style="margin-top:8px"><b>These bp levels are illustrative assumptions, not measured
+          transaction costs.</b> t_spread is <b>not</b> used as a cost proxy (its WRDS meaning is unverified).
+          A meaningful share of cumulative HY P&amp;L is the 2020 dislocation/recovery regime.</p>
+      </div>
+    </div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  <!-- ===================================================== A6 CURRENT + EVENTS -->
+  <section class="slide apx" data-sec="A6" data-acc="ink">
+    <div class="kicker"><span class="dot"></span> Appendix · A6 — Current dislocation &amp; event verification</div>
+    <h2 class="h-title">2025-11 snapshot &amp; name-level event screen</h2>
+    <div class="row">
+      <div class="col" style="flex:1.1"><div class="imgwrap grow"><img src="assets/fig_current_disp.png" alt="2025-11 dislocation vs history, tighter than history"></div></div>
+      <div class="col" style="flex:1.1;gap:10px;justify-content:center">
+        <div class="panel"><h4>Market context</h4>
+          <p>619 firms (515 IG / 104 HY). Cross-sectional dispersion std ≈ 24th pct, IQR ≈ 11th pct of history
+            → not a market-wide dislocation.</p></div>
+        <div class="panel"><h4>Clean vs confounded candidates</h4>
+          <table class="tb">
+            <tr><th>Name</th><th>Dir.</th><th>Verdict</th></tr>
+            <tr class="hy"><td>VFC (HY)</td><td>long</td><td>clean — asset sale → deleverage</td></tr>
+            <tr><td>GT (HY)</td><td>long</td><td>backup — $2.2B GAAP loss, prospective deleverage</td></tr>
+            <tr><td>ORCL (IG)</td><td>short</td><td>reject — debt-funded capex + S&amp;P→BBB−</td></tr>
+            <tr><td>HPP (HY)</td><td>short</td><td>reject — dilutive raise (inverted)</td></tr>
+          </table></div>
+        <div class="note">VFC/GT confirmed against SEC filings &amp; IR; ORCL/HPP/COKE/DELL rejected or caveated.
+          VFC is an extreme-tail (z≈2.6) illustration, not the typical monthly signal.</div>
+      </div>
+    </div>
+    <div class="foot"><div class="take"></div><div class="pager"></div></div>
+  </section>
+
+  </div><!--/stage-->
+</div><!--/viewport-->
+
+<div class="navz" id="navprev" title="Previous"></div>
+<div class="navz" id="navnext" title="Next"></div>
+<div id="hint">← / → navigate · F fullscreen</div>
+
+<script>
+/* ============================================================= DECK ENGINE */
+const stage = document.getElementById('stage');
+const slides = Array.from(document.querySelectorAll('.slide'));
+const MAIN = slides.filter(s => /^\d+$/.test(s.dataset.sec)).length; // 7
+let i = 0;
+
+function fit(){
+  const s = Math.min(window.innerWidth/1280, window.innerHeight/720);
+  stage.style.transform = `scale(${s})`;
+}
+window.addEventListener('resize', fit); fit();
+
+function render(){
+  slides.forEach((s,k)=>s.classList.toggle('active', k===i));
+  const s = slides[i];
+  const sec = s.dataset.sec;
+  const isMain = /^\d+$/.test(sec);
+  const label = isMain ? `${String(i+1).padStart(2,'0')} / ${String(MAIN).padStart(2,'0')}`
+                       : `Appendix ${sec==='A'?'':sec}`.trim();
+  s.querySelectorAll('.pager').forEach(p=>p.textContent = label);
+  // progress bar on the active slide's accent
+  const pct = (i)/(slides.length-1)*100;
+  let bar = s.querySelector('#bar, [data-bar]');
+  // single shared bar: recreate on active slide
+  document.querySelectorAll('[data-bar]').forEach(b=>b.remove());
+  const b = document.createElement('div'); b.id='bar'; b.setAttribute('data-bar','');
+  b.style.cssText = `position:absolute;left:0;bottom:0;height:4px;background:var(--orange);width:${pct}% ;transition:width .3s ease`;
+  s.appendChild(b);
+}
+function go(n){ i = Math.max(0, Math.min(slides.length-1, n)); render(); }
+function next(){ go(i+1); } function prev(){ go(i-1); }
+
+document.addEventListener('keydown', e=>{
+  if(['ArrowRight','PageDown',' ','Spacebar'].includes(e.key)){ e.preventDefault(); next(); }
+  else if(['ArrowLeft','PageUp'].includes(e.key)){ e.preventDefault(); prev(); }
+  else if(e.key==='Home'){ go(0); } else if(e.key==='End'){ go(slides.length-1); }
+  else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement) document.documentElement.requestFullscreen(); else document.exitFullscreen(); }
+});
+document.getElementById('navnext').addEventListener('click', next);
+document.getElementById('navprev').addEventListener('click', prev);
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+spec,d(eq_t),se,t,p,+1SD_bp,N
+Baseline (ALL): bd_(t+1)~bd_t+eq_t,0.0301,0.0105,2.87,0.0041,35.6,75028
+Spec A (ALL): +AOdur+AOdur*Dy10_(t+1),0.0305,0.0103,2.97,0.003,36.0,74967
+Spec B (ALL): credit-excess bd,0.0296,0.01,2.96,0.0031,34.9,74921
+Baseline (IG): bd_(t+1)~bd_t+eq_t,0.0114,0.0038,3.0,0.0027,9.9,53982
+Spec A (IG): +AOdur+AOdur*Dy10_(t+1),0.0104,0.0035,2.98,0.0029,9.0,53973
+Spec B (IG): credit-excess bd,0.0115,0.0035,3.29,0.001,10.0,53966
+Baseline (HY): bd_(t+1)~bd_t+eq_t,0.0359,0.0127,2.84,0.0046,62.9,21046
+Spec A (HY): +AOdur+AOdur*Dy10_(t+1),0.0382,0.0124,3.08,0.0021,66.9,20994
+Spec B (HY): credit-excess bd,0.0356,0.0123,2.9,0.0037,62.0,20955

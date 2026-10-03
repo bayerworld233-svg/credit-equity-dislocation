@@ -1,0 +1,113 @@
+{
+  "generated_utc": "2026-10-03T02:42:21Z",
+  "rows": [
+    {
+      "cell": "ALL | fresh inf (baseline)",
+      "d(eq_t)": 0.0299,
+      "se": 0.0105,
+      "t": 2.85,
+      "p": 0.0043,
+      "+1SD_bp": 35.5,
+      "N": 74978,
+      "firms": 1057,
+      "months": 106,
+      "retention_vs_base": 1.0
+    },
+    {
+      "cell": "IG | fresh inf (baseline)",
+      "d(eq_t)": 0.0118,
+      "se": 0.0039,
+      "t": 3.01,
+      "p": 0.0026,
+      "+1SD_bp": 10.3,
+      "N": 53932,
+      "firms": 711,
+      "months": 106,
+      "retention_vs_base": 1.0
+    },
+    {
+      "cell": "HY | fresh inf (baseline)",
+      "d(eq_t)": 0.0354,
+      "se": 0.0127,
+      "t": 2.79,
+      "p": 0.0053,
+      "+1SD_bp": 62.1,
+      "N": 21046,
+      "firms": 488,
+      "months": 106,
+      "retention_vs_base": 1.0
+    },
+    {
+      "cell": "ALL | fresh <=5d",
+      "d(eq_t)": 0.0292,
+      "se": 0.0108,
+      "t": 2.7,
+      "p": 0.0069,
+      "+1SD_bp": 34.6,
+      "N": 73250,
+      "firms": 1054,
+      "months": 106,
+      "retention_vs_base": 0.977
+    },
+    {
+      "cell": "IG | fresh <=5d",
+      "d(eq_t)": 0.0105,
+      "se": 0.0038,
+      "t": 2.73,
+      "p": 0.0063,
+      "+1SD_bp": 9.1,
+      "N": 52857,
+      "firms": 711,
+      "months": 106,
+      "retention_vs_base": 0.98
+    },
+    {
+      "cell": "HY | fresh <=5d",
+      "d(eq_t)": 0.0349,
+      "se": 0.0129,
+      "t": 2.71,
+      "p": 0.0068,
+      "+1SD_bp": 61.5,
+      "N": 20393,
+      "firms": 485,
+      "months": 106,
+      "retention_vs_base": 0.969
+    },
+    {
+      "cell": "ALL | fresh <=1d",
+      "d(eq_t)": 0.0312,
+      "se": 0.013,
+      "t": 2.4,
+      "p": 0.0166,
+      "+1SD_bp": 37.4,
+      "N": 59325,
+      "firms": 1050,
+      "months": 89,
+      "retention_vs_base": 0.791
+    },
+    {
+      "cell": "IG | fresh <=1d",
+      "d(eq_t)": 0.0099,
+      "se": 0.0044,
+      "t": 2.24,
+      "p": 0.0252,
+      "+1SD_bp": 8.8,
+      "N": 43131,
+      "firms": 708,
+      "months": 89,
+      "retention_vs_base": 0.8
+    },
+    {
+      "cell": "HY | fresh <=1d",
+      "d(eq_t)": 0.0387,
+      "se": 0.0158,
+      "t": 2.45,
+      "p": 0.0143,
+      "+1SD_bp": 69.2,
+      "N": 16194,
+      "firms": 489,
+      "months": 89,
+      "retention_vs_base": 0.769
+    }
+  ]
+}
