@@ -1,107 +1,87 @@
 # Credit–Equity Dislocation
 ### When a firm's stock and its bonds disagree, which market is right?
 
+**▶ View the presentation → https://bayerworld233-svg.github.io/credit-equity-dislocation/**
+(opens the slide deck directly in the browser — ← / → to navigate, **F** for fullscreen)
+
 A cross-asset quant research study on **same-firm** corporate bonds vs. equities (monthly,
-2015–2025, WRDS data). It asks whether information in one market is incorporated into the
-other with a delay — and turns the answer into a systematic credit-convergence strategy.
-
-> **Presentation:** open [`report/index.html`](report/index.html) in any browser
-> (self-contained, offline). Navigate with **← / →**; press **F** for fullscreen.
+2015–2025, WRDS data). It asks whether information in one market is incorporated into the other
+with a delay — and turns the answer into a systematic credit-convergence strategy.
 
 ---
 
-## The research story (in order)
+## Research question
+Same-firm stocks and corporate bonds are claims on one enterprise value but trade in segmented
+markets. When they diverge from their historical relationship, **which market — if either —
+predicts the other's convergence?** (Original hypothesis: bonds lead equities.)
 
-1. **Original hypothesis — bonds lead equities.** Motivated by cross-market information
-   diffusion / investor segmentation, I expected the slower, less-liquid OTC bond market to
-   lead the stock when the two diverge.
-2. **A stable normal relationship exists.** Same-firm contemporaneous bond/equity correlation
-   ≈ 0.42; pooled OLS β ≈ 1.26; an expanding, look-ahead-free β stays in 1.10–1.33 and is
-   always positive. This makes a **dislocation** well-defined:
-   `Dislocation(i,t) = eq(i,t) − [α̂(t) + β̂(t)·bd(i,t)]`, with α̂, β̂ estimated only on data ≤ t−1.
-3. **The data rejected the original hypothesis.** In an unrestricted monthly decomposition,
-   **bond → equity is insignificant** (coef ≈ −0.019, t ≈ −0.12), while
-   **equity → next-month bond is significant** (coef ≈ +0.030, t ≈ +2.87), conditional on the
-   bond's own current return. At the monthly horizon, *equity predicts next-month bond returns;
-   the reverse does not.*
-4. **It survives falsification.** The equity→bond lead is **not** bond mean-reversion (own-return
-   decomposition), **survives Treasury-rate adjustment** (duration×Δy10 and duration-matched
-   Treasury-adjusted returns), and **survives stricter month-end price-freshness screens**
-   (current TRACE trades only, ≤5-day freshness). It is **~6× larger in high yield** per unit of
-   signal — strongest where credit risk dominates.
-5. **Strategy — a credit-convergence long/short.** Each month, rank firms by dislocation into
-   quintiles; **long Q5** (equity outran credit → bond may catch up), **short Q1**, hold one
-   month, rebalance monthly, dollar-neutral. Within a firm, bonds are amount-outstanding-weighted
-   into one credit return; **across firms, issuers are equal-weighted**. Returns use
-   duration-matched Treasury-adjusted (credit-excess) bond returns to approximate a credit view.
-6. **Headline gross backtest** (quintile L/S, equal-weight firms, credit-excess, 2017–2025):
+## Data (licensed — not redistributed)
+WRDS **Bond Returns** (TRACE-based) + **CRSP** equities, joined on the official bond–CRSP
+**point-in-time** link; Treasury term returns and Fama–French factors. Panel: **98,373
+firm-months / 1,244 firms**, 2015-01→2025-11 (signal/backtest 2017-01→2025-11). Security-level
+WRDS data are **not** included here (see *Licensing* below).
 
-   | Sleeve | Ann. return | Vol | Sharpe | NW t-stat | Hit rate |
-   |---|--:|--:|--:|--:|--:|
-   | ALL | 5.1% | 4.1% | 1.24 | 2.80 | 72% |
-   | High yield | 10.1% | 9.1% | 1.10 | 2.79 | 69% |
-   | Investment grade | 2.2% | 1.9% | 1.12 | 2.47 | 76% |
+## Signal construction (no look-ahead)
+Estimate the normal relationship on **past data only** (`s ≤ t−1`):
+`R^Equity_{i,s} = α_t + β_t R^Bond_{i,s}`, then score month t:
+**Dislocation** `D_{i,t} = R^Equity_{i,t} − (α̂_t + β̂_t R^Bond_{i,t})` — the residual from the
+historical benchmark (a statistical deviation, not automatically a mispricing).
 
-7. **Current example (as-of 2025-11).** Market-wide dislocation dispersion is *below* its history
-   (~24th percentile) — this is name-specific, not a market-wide mispricing. **VF Corp** is a
-   candidate long-credit dislocation (HY, ~+2.6σ); its catalyst (Dickies sale closed, net debt
-   down ~27% ex-leases) is directionally positive for *both* equity and credit, consistent with
-   delayed credit repricing rather than a shareholder-vs-creditor event.
+## Main empirical finding
+The original "bonds lead equities" hypothesis is **rejected**. Instead, current **equity** return
+carries incremental predictive information for **next-month same-firm corporate-bond** return,
+after controlling for the bond's own current return:
+`R^Bond_{i,t+1} = λ_t + β₁ R^Bond_{i,t} + β₂ R^Equity_{i,t} + ε`, with **β₂ ≈ +0.030, t ≈ 2.87**
+(month FE, firm & month clustered SEs). This is a **predictive** relation, not proof of causal
+information flow.
 
-### Important framing (please read as such)
-- This is a **predictive** relation, **not** proof of causal information flow. Diffusion /
-  segmentation is a *hypothesis consistent with* the evidence.
-- A **dislocation is a statistical deviation, not automatically a mispricing.**
-- Backtest figures are **gross**. Turnover is ~160%/rebalance; single-name cash-bond shorting is
-  hard and costly; the cost sensitivity uses **illustrative** assumed basis-point costs, **not**
-  measured transaction costs. Full-sample performance is not necessarily regime-invariant (the
-  2020 dislocation contributes a visible step, largest in HY).
+## Trading interpretation
+A monthly cross-sectional credit-convergence long/short: rank firms by dislocation,
+**long Q5** (equity outran credit → bond expected to catch up) / **short Q1**, dollar-neutral,
+1-month hold, duration-matched Treasury-adjusted (credit-excess) bond returns. Gross backtest:
+ALL ≈ 5.1%/yr (Sharpe 1.24, NW-t 2.80); **HY ≈ 10.1%/yr**. Results are **gross** — turnover
+≈160%/rebalance and single-name cash-bond shorting/HY liquidity make net tradability the open
+question. VF Corp (Nov-2025) is a current *candidate*, pending an event check (dislocation ≠ mispricing).
 
----
+## Key robustness (equity coefficient β₂)
+| Specification | β₂ | t |
+|---|--:|--:|
+| Baseline decomposition | +0.030 | 2.87 |
+| Treasury / duration adjusted | +0.030 | 2.96 |
+| ≤5-day fresh bond prices | +0.029 | 2.70 |
+| High yield vs IG | ≈ 6× larger in HY | |
 
-## Data sources & licensing (important)
+Survives own-return decomposition, Treasury/duration adjustment, and stricter month-end
+price-freshness; economically much larger in HY. "Survives" reduces the plausibility of these
+alternatives — it does not fully disprove them.
 
-All security-level inputs come from **licensed WRDS datasets** and are **not** redistributed here:
+## Repository structure
+```
+docs/            published presentation (GitHub Pages) — index.html + assets/
+report/          authoring copy of the deck
+src/             full pipeline: extract → clean → link → panel → analyses → backtest → snapshot
+output/figures/  aggregate figures
+output/tables/   aggregate result tables
+output/diagnostics/  methodology memos & aggregate results
+data/            WRDS-licensed raw & derived data — gitignored, not distributed
+```
 
-| Role | WRDS source |
-|---|---|
-| Corporate bond returns (monthly) | `wrdsapps_bondret.bondret` |
-| Equity (CRSP v2 monthly, delisting-adjusted) | `crsp.msf_v2` |
-| Bond→equity link (official, point-in-time) | `wrdsapps_link_crsp_bond.bondcrsp_link` |
-| Treasury term returns | CRSP Fixed-Term Indices (`crsp.tfz_mth_ft`) |
-| Factors | `ff.factors_monthly` |
-
-**This repository contains code, methodology, the presentation, and aggregate results only.**
-Raw and derived **row-level WRDS observations** (`data/`, firm-level snapshot CSVs) are
-`.gitignore`d and must be regenerated from WRDS by anyone with the appropriate subscription.
-Published outputs are aggregate statistics (regression coefficients, portfolio metrics,
-distributions, figures). Credentials are never stored in the repo — WRDS auth is read at runtime
-only from `~/.pgpass` by the `wrds` package.
-
-### Reproducibility note
-Because the underlying data are licensed, the pipeline is **not** runnable end-to-end without a
-WRDS account. With access:
-
+## Reproduction
+Licensed data are not distributed, so the pipeline is not runnable end-to-end without a WRDS
+account. With access:
 ```bash
 conda create -y -n credit-equity python=3.12 && conda activate credit-equity
 pip install -r requirements.txt
-python -c "import wrds; db=wrds.Connection(); db.create_pgpass_file(); db.close()"  # one-time auth
-conda run -n credit-equity python -m src.extract          # -> data/raw/ (licensed; gitignored)
-conda run -n credit-equity python -m src.data_audit
-# clean_bonds -> clean_equities -> link_bond_equity -> aggregate_monthly -> panel_audit
-# historical_relationship -> dislocation -> predictive_regressions -> own_return_decomposition
-# rate_robustness -> freshness_robustness -> backtest_candidateA -> current_snapshot
+python -c "import wrds; db=wrds.Connection(); db.create_pgpass_file(); db.close()"   # one-time auth
+conda run -n credit-equity python -m src.extract        # -> data/raw/ (licensed; gitignored)
+# clean_bonds → clean_equities → link_bond_equity → aggregate_monthly → panel_audit
+# historical_relationship → dislocation → predictive_regressions → own_return_decomposition
+# rate_robustness → freshness_robustness → backtest_candidateA → current_snapshot
 ```
 
-## Repository layout
-
-```
-report/index.html      self-contained presentation deck (+ report/assets/ figures)
-src/                   extraction, cleaning, linking, panel build, all analyses & backtest
-output/figures/        aggregate figures used in the deck
-output/tables/         aggregate result tables (firm-level snapshot CSVs are gitignored)
-output/diagnostics/    methodology memos & aggregate results (data audit, spec, robustness, backtest)
-data/                  WRDS-licensed raw & derived data — gitignored, not distributed
-```
+## Licensing
+Security-level inputs come from **licensed WRDS datasets** and are **not** redistributed.
+Published outputs are aggregate statistics, code, methodology, and the presentation. WRDS auth is
+read at runtime only from `~/.pgpass` — no credentials are stored in the repo.
 
 *Educational research project. Not investment advice.*
